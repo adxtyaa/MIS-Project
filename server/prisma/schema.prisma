@@ -1,0 +1,125 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PGP1
+  PGP2
+}
+
+enum MatchStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  pgpId     String
+  role      Role
+  isAdmin   Boolean  @default(false)
+  phone     String?
+  linkedin  String?
+  bio       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cvUploads          CvUpload[]
+  supplyForms        SupplyForm[]
+  demandForms        DemandForm[]
+  matchesAsPgp1      Match[]              @relation("MatchPgp1")
+  matchesAsPgp2      Match[]              @relation("MatchPgp2")
+  feedbackSubmissions FeedbackSubmission[]
+  slotQualityScore   SlotQualityScore?
+}
+
+model CvUpload {
+  id        String   @id @default(uuid())
+  userId    String
+  filePath  String
+  fileName  String
+  fileSize  Int
+  cvScore   Float?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model SupplyForm {
+  id         String   @id @default(uuid())
+  userId     String
+  windowDate DateTime
+  isRetracted Boolean @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, windowDate])
+}
+
+model DemandForm {
+  id         String   @id @default(uuid())
+  userId     String
+  windowDate DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, windowDate])
+}
+
+model Match {
+  id          String      @id @default(uuid())
+  pgp1Id      String
+  pgp2Id      String
+  windowDate  DateTime
+  status      MatchStatus @default(PENDING)
+  cvScoreSnap Float?
+  slotScore   Float?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  pgp1     User                 @relation("MatchPgp1", fields: [pgp1Id], references: [id])
+  pgp2     User                 @relation("MatchPgp2", fields: [pgp2Id], references: [id])
+  feedback FeedbackSubmission[]
+}
+
+model FeedbackSubmission {
+  id        String   @id @default(uuid())
+  userId    String
+  matchId   String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  match Match @relation(fields: [matchId], references: [id])
+
+  @@unique([userId, matchId])
+}
+
+model SlotQualityScore {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  score     Float    @default(50.0)
+  totalSlots Int     @default(0)
+  feedbackCount Int  @default(0)
+  avgRating Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
