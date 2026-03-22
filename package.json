@@ -1,0 +1,14 @@
+{
+  "name": "mentorconnect",
+  "private": true,
+  "scripts": {
+    "client": "cd client && npm run dev",
+    "server": "cd server && npm run dev",
+    "cv-scoring": "cd services/cv-scoring && npm run dev",
+    "dev": "concurrently \"npm run client\" \"npm run server\"",
+    "dev:all": "concurrently \"npm run client\" \"npm run server\" \"npm run cv-scoring\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  }
+}
