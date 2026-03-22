@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
+import cors from "cors";
 import path from "path";
 import fs from "fs";
 import { errorHandler } from "./middleware/auth";
@@ -23,6 +24,7 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Middleware
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
