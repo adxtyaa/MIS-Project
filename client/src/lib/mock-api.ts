@@ -6,7 +6,9 @@ import type {
   AdminDashboard,
 } from "./mock-data";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000";
+// In production (Vercel), API is on the same domain so use "" (relative paths)
+// In development, use localhost:4000
+const API_URL = import.meta.env.VITE_API_URL ?? "";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 

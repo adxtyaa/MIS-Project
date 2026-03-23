@@ -6,7 +6,8 @@ import prisma from "../lib/prisma";
 import { requireAuth, AuthRequest } from "../middleware/auth";
 import { triggerCvScoring } from "../services/cvScoring";
 
-const uploadDir = process.env.UPLOAD_DIR || "uploads";
+// Use /tmp on Vercel (serverless), local uploads dir otherwise
+const uploadDir = process.env.VERCEL ? "/tmp" : (process.env.UPLOAD_DIR || "uploads");
 
 const storage = multer.diskStorage({
   destination: (req: any, _file, cb) => {
